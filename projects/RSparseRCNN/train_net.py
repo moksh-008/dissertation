@@ -20,11 +20,12 @@ from detectron2.data import DatasetCatalog, MetadataCatalog, build_detection_tra
 from detectron2.engine import DefaultTrainer, default_argument_parser, default_setup, launch
 from detectron2.evaluation import RotatedCOCOEvaluator
 from detectron2.solver.build import maybe_add_gradient_clipping
-from rsparsercnn import RSparseRCNNDatasetMapper, add_rsparsercnn_config
+from rsparsercnn import add_rsparsercnn_config
 from detectron2.data.datasets import register_coco_instances
 from detectron2.data.datasets.builtin_meta import _get_builtin_metadata
 from rsparsercnn.rsdd_dataset import get_rsdd_dataset_function
 from rsparsercnn.ssdd_dataset import get_ssdd_dataset_function
+from rsparsercnn.nastar_dataset import get_nastar_dataset_function
 
 
 class Trainer(DefaultTrainer): # from detectron2/engine/defaults.py
@@ -46,7 +47,13 @@ class Trainer(DefaultTrainer): # from detectron2/engine/defaults.py
 
     @classmethod
     def build_train_loader(cls, cfg):
-        mapper = RSparseRCNNDatasetMapper(cfg, is_train=True)
+        # Use NASTaR mapper for TIF images, standard mapper otherwise
+        if cfg.DATASET_NAME == 'NASTaR':
+            from rsparsercnn.nastar_dataset_mapper import NASTaRDatasetMapper
+            mapper = NASTaRDatasetMapper(cfg, is_train=True)
+        else:
+            from rsparsercnn import RSparseRCNNDatasetMapper
+            mapper = RSparseRCNNDatasetMapper(cfg, is_train=True)
         return build_detection_train_loader(cfg, mapper=mapper)
 
     @classmethod
@@ -119,10 +126,19 @@ def main(args):
         train_dataset_function = get_rsdd_dataset_function(cfg.DATASET_MAIN_DIR, 'train')
     elif cfg.DATASET_NAME == 'SSDD':
         train_dataset_function = get_ssdd_dataset_function(cfg.DATASET_MAIN_DIR, 'train')
+    elif cfg.DATASET_NAME == 'NASTaR':
+        train_dataset_function = get_nastar_dataset_function(
+            cfg.TRAIN_JSON_PATH, cfg.DATASET_MAIN_DIR)
+
+    # Get the appropriate metadata
+    if cfg.DATASET_NAME == 'NASTaR':
+        metadata_key = "nastar"
+    else:
+        metadata_key = "rsdd"
 
     MetadataCatalog.get(cfg.TRAIN_DATASET_NAME).thing_classes = cfg.CLASS_LABELS
     DatasetCatalog.register(cfg.TRAIN_DATASET_NAME, train_dataset_function)
-    register_coco_instances(cfg.EVAL_DATASET_NAME, _get_builtin_metadata("rsdd"), 
+    register_coco_instances(cfg.EVAL_DATASET_NAME, _get_builtin_metadata(metadata_key), 
                                 cfg.EVAL_JSON_PATH, 
                                 cfg.EVAL_IMAGES_DIR)
 

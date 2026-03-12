@@ -8,3 +8,4 @@
 from .config import add_rsparsercnn_config
 from .detector import RSparseRCNN
 from .dataset_mapper import RSparseRCNNDatasetMapper
+from .nastar_dataset_mapper import NASTaRDatasetMapper

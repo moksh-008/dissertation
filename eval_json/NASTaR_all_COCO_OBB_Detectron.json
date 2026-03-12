@@ -1,0 +1,18 @@
+{
+  "info": {
+    "description": "NASTaR COCO OBB (all)",
+    "version": "1.0",
+    "year": 2026,
+    "contributor": "Auto-generated from NASTaR AIS metadata",
+    "date_created": "2026-03-06"
+  },
+  "images": [],
+  "annotations": [],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Ship",
+      "supercategory": "Ship"
+    }
+  ]
+}
