@@ -15,9 +15,11 @@ SOLVER:
   # 1 epoch ≈ 241 iterations
   # 60 epochs ≈ 14,460 iterations
   # 80 epochs ≈ 19,280 iterations (with LR drops at 60 and 70 epochs)
-  IMS_PER_BATCH: 8
-  STEPS: (14460, 16870) # LR drops at ~60 and ~70 epochs
-  MAX_ITER: 19280 # ~80 epochs total
+  IMS_PER_BATCH: 1        # Keep at 1 for CPU to avoid OOM
+  MAX_ITER: 2500          # Shortens training from 3 days to ~11 hours
+  STEPS: (1800, 2200)     # Decay learning rate at 70% and 90% of training
+  BASE_LR: 0.00002        # Standard starting rate
+  WARMUP_ITERS: 500       # 20% of total iterations for stability
 INPUT:
   MIN_SIZE_TRAIN: (384, 416, 448, 480, 512)
   MIN_SIZE_TEST: 512

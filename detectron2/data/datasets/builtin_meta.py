@@ -336,7 +336,7 @@ def _get_builtin_metadata(dataset_name):
     if dataset_name == "rsdd":
         return _get_rsdd_instances_meta()
     if dataset_name == "nastar":
-         return _get_nastar_instances_meta()
+        return _get_nastar_instances_meta()
     if dataset_name == "coco":
         return _get_coco_instances_meta()
     if dataset_name == "coco_panoptic_separated":
