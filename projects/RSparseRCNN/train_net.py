@@ -122,7 +122,7 @@ def setup(args):
 def main(args):
     cfg = setup(args)
 
-    if cfg.DATASET_NAME == 'NASTaR':
+    if cfg.DATASET_NAME == 'nastar':
         # NASTaR uses a custom loader because it handles .tif files via get_nastar_dataset_function
         train_dataset_function = get_nastar_dataset_function(
             cfg.TRAIN_JSON_PATH, cfg.DATASET_MAIN_DIR)
