@@ -122,27 +122,36 @@ def setup(args):
 def main(args):
     cfg = setup(args)
 
-    if cfg.DATASET_NAME == 'RSDD':
-        train_dataset_function = get_rsdd_dataset_function(cfg.DATASET_MAIN_DIR, 'train')
-    elif cfg.DATASET_NAME == 'SSDD':
-        train_dataset_function = get_ssdd_dataset_function(cfg.DATASET_MAIN_DIR, 'train')
-    elif cfg.DATASET_NAME == 'NASTaR':
+    if cfg.DATASET_NAME == 'NASTaR':
+        # NASTaR uses a custom loader because it handles .tif files via get_nastar_dataset_function
         train_dataset_function = get_nastar_dataset_function(
             cfg.TRAIN_JSON_PATH, cfg.DATASET_MAIN_DIR)
-
-    # Get the appropriate metadata
-    if cfg.DATASET_NAME == 'NASTaR':
+        DatasetCatalog.register(cfg.TRAIN_DATASET_NAME, train_dataset_function)
+        
+        # Set the metadata key for the evaluator
         metadata_key = "nastar"
-    else:
+    elif cfg.DATASET_NAME == 'RSDD':
+        train_dataset_function = get_rsdd_dataset_function(cfg.DATASET_MAIN_DIR, 'train')
+        DatasetCatalog.register(cfg.TRAIN_DATASET_NAME, train_dataset_function)
         metadata_key = "rsdd"
+    elif cfg.DATASET_NAME == 'SSDD':
+        train_dataset_function = get_ssdd_dataset_function(cfg.DATASET_MAIN_DIR, 'train')
+        DatasetCatalog.register(cfg.TRAIN_DATASET_NAME, train_dataset_function)
+        metadata_key = "rsdd" # SSDD often uses RSDD metadata
 
-    MetadataCatalog.get(cfg.TRAIN_DATASET_NAME).thing_classes = cfg.CLASS_LABELS
-    DatasetCatalog.register(cfg.TRAIN_DATASET_NAME, train_dataset_function)
-    register_coco_instances(cfg.EVAL_DATASET_NAME, _get_builtin_metadata(metadata_key), 
-                                cfg.EVAL_JSON_PATH, 
-                                cfg.EVAL_IMAGES_DIR)
+    # 2. Attach Metadata (Classes and colors) to the Training Set
+    MetadataCatalog.get(cfg.TRAIN_DATASET_NAME).set(
+        **_get_builtin_metadata(metadata_key)
+    )
 
-    trainer = Trainer(cfg) #-> build model and metadata
+    # 3. Register the Evaluation/Validation Dataset
+    # This uses the standard COCO format loader
+    register_coco_instances(cfg.EVAL_DATASET_NAME, 
+                            _get_builtin_metadata(metadata_key), 
+                            cfg.EVAL_JSON_PATH, 
+                            cfg.EVAL_IMAGES_DIR)
+
+    trainer = Trainer(cfg) 
     trainer.resume_or_load(resume=args.resume)
     return trainer.train()
 
