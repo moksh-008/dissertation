@@ -25,6 +25,11 @@ RSDD_CATEGORIES = [
     {"color": [220, 20, 60], "isthing": 1, "id": 1, "name": "Ship"},
 ]
 
+NASTAR_CATEGORIES = [
+    {"color": [0, 255, 0], "isthing": 1, "id": 1, "name": "Ship"},
+]
+
+
 COCO_CATEGORIES = [
     {"color": [220, 20, 60], "isthing": 1, "id": 1, "name": "person"},
     {"color": [119, 11, 32], "isthing": 1, "id": 2, "name": "bicycle"},
@@ -262,6 +267,18 @@ def _get_rsdd_instances_meta():
     }
     return ret
 
+def _get_nastar_instances_meta():
+    thing_ids = [k["id"] for k in NASTAR_CATEGORIES if k["isthing"] == 1]
+    thing_colors = [k["color"] for k in NASTAR_CATEGORIES if k["isthing"] == 1]
+    assert len(thing_ids) == 1, len(thing_ids)
+    thing_dataset_id_to_contiguous_id = {k: i for i, k in enumerate(thing_ids)}
+    thing_classes = [k["name"] for k in NASTAR_CATEGORIES if k["isthing"] == 1]
+    ret = {
+        "thing_dataset_id_to_contiguous_id": thing_dataset_id_to_contiguous_id,
+        "thing_classes": thing_classes,
+        "thing_colors": thing_colors,
+    }
+    return ret
 
 def _get_coco_instances_meta():
     thing_ids = [k["id"] for k in COCO_CATEGORIES if k["isthing"] == 1]
@@ -315,6 +332,8 @@ def _get_coco_panoptic_separated_meta():
 def _get_builtin_metadata(dataset_name):
     if dataset_name == "rsdd":
         return _get_rsdd_instances_meta()
+    if dataset_name == "nastar":
+         return _get_nastar_instances_meta()
     if dataset_name == "coco":
         return _get_coco_instances_meta()
     if dataset_name == "coco_panoptic_separated":

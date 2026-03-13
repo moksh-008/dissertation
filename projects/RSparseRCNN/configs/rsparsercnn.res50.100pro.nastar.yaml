@@ -9,15 +9,15 @@ MODEL:
     NUM_CLASSES: 1
 DATASETS:
   TRAIN: ("NASTaR_train",)
-  TEST:  ("NASTaR_val",)
+  TEST: ("NASTaR_val",)
 SOLVER:
   # NASTaR has ~1925 training images. With batch size 8:
   # 1 epoch ≈ 241 iterations
   # 60 epochs ≈ 14,460 iterations
   # 80 epochs ≈ 19,280 iterations (with LR drops at 60 and 70 epochs)
   IMS_PER_BATCH: 8
-  STEPS: (14460, 16870)   # LR drops at ~60 and ~70 epochs
-  MAX_ITER: 19280          # ~80 epochs total
+  STEPS: (14460, 16870) # LR drops at ~60 and ~70 epochs
+  MAX_ITER: 19280 # ~80 epochs total
 INPUT:
   MIN_SIZE_TRAIN: (384, 416, 448, 480, 512)
   MIN_SIZE_TEST: 512
@@ -26,4 +26,4 @@ INPUT:
     ENABLED: False
   FORMAT: "RGB"
 TEST:
-  EVAL_PERIOD: 2410  # Evaluate every ~10 epochs
+  EVAL_PERIOD: 2410 # Evaluate every ~10 epochs
